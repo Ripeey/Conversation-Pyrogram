@@ -7,7 +7,7 @@ Complete list of handlers to be used without `Handlers` postfix :-
 # Usage
 ```Python
 listen = Conversation(client)
-answer = listen.CallbackQuery(filters.user(update.from.id))
+answer = listen.CallbackQuery(filters.user(update.from_user.id))
 ```
 
 # Example
@@ -18,6 +18,6 @@ async def start(client, message):
 	await client.send_mesage(messsage.chat.id, "What's your name?")
 	reply_message = listen.Message(filters.chat(messsage.chat.id), timeout = None)
 	if reply_message:
-		reply_message.reply(f'hello {message.text}')
+		reply_message.reply(f'hello {reply_message.text}')
 
 ```

@@ -10,7 +10,7 @@ class Conversation():
 
 	Usage:
 		listen = Conversation(client)
-		answer = listen.CallbackQuery(filters.user(update.from.id))
+		answer = listen.CallbackQuery(filters.user(update.from_user.id))
 
 	Example:
 		@app.on_message(filters.command('start'))
@@ -19,7 +19,7 @@ class Conversation():
 			await client.send_mesage(messsage.chat.id, "What's your name?")
 			reply_message = listen.Message(filters.chat(messsage.chat.id), timeout = None)
 			if reply_message:
-				reply_message.reply(f'hello {message.text}')
+				reply_message.reply(f'hello {reply_message.text}')
 	"""
 	def __init__(self, client : pyrogram.Client):
 		self.client = client
@@ -37,7 +37,7 @@ class Conversation():
 			self.client.dispatcher.groups[group] = []
 			self.client.dispatcher.groups = OrderedDict(sorted(self.client.dispatcher.groups.items()))
 
-		app.dispatcher.groups[group].append(handler)
+		self.client.dispatcher.groups[group].append(handler)
 		self.handlers[id(dump)] = (handler, group, event)
 		try:
 			await asyncio.wait_for(event.wait(), timeout)
