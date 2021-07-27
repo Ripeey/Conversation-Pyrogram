@@ -28,7 +28,7 @@ class Conversation():
 				Default is `None` but either filter or id is required.
 			
 			id: 
-				An id for uniquely identify each listen only required if you want to stop() manually.
+				An id for uniquely identify each listen only required if you want to Cancel() manually.
 				You can pass any of the three types here:
 					-> pyrogram.filters.user
 					-> pyrogram.filters.chat
@@ -41,8 +41,9 @@ class Conversation():
 				In seconds (int) for waiting time of getting a response.
 
 		Returns:
-			`update` (like pyrogram.types.message ...etc) if user reponded within given conditions or
-			`None` if timeout or cancelled using `listen.stop`
+			`update` (like pyrogram.types.Message ...etc) if user reponded within given conditions.
+			`None`  if listen cancelled using `listen.Cancel`
+			`Exception` An asyncio.TimeoutError is raise if waiting timeout occurs.
 	Example:
 		@app.on_message(filters.command('start'))
 		async def start(client, message):
@@ -52,21 +53,21 @@ class Conversation():
 				reply_msg.reply(f'hello {reply_msg.text}')
 	
 
-	Method client.listen.stop
+	Method client.listen.Cancel
 		Parameters:
 			id:
-				An id for uniquely identify the listen you want to stop() manually.
+				An id for uniquely identify the listen you want to Cancel() manually.
 				You can pass any of the three types here:
 					-> pyrogram.filters.user
 					-> pyrogram.filters.chat
 					-> str
 		Returns:
-			`Boolean` True if `id` was present and listen was stopped or False if `id` was invalid.
+			`Boolean` True if `id` was present and listen was Cancelped or False if `id` was invalid.
 		
 		Example:
 			@app.on_message(filters.command('stop'))
 			async def stop(client, message):
-				await client.listen.stop(message.from_user.id)
+				await client.listen.Cancel(message.from_user.id)
 	"""
 	def __init__(self, client : pyrogram.Client):
 		client.listen = self
@@ -113,6 +114,7 @@ class Conversation():
 			await asyncio.wait_for(event.wait(), timeout)
 		except asyncio.exceptions.TimeoutError:
 			await self.__remove(dump._id)
+			raise asyncio.exceptions.TimeoutError
 		finally:
 			result = self.handlers.pop(dump._id, None)
 			self.hdlr_lock.release()
@@ -125,7 +127,7 @@ class Conversation():
 		self.handlers[_id] = update
 		event.set()
 
-	async def stop(self, _id):
+	async def Cancel(self, _id):
 		if str(_id) in self.handlers:
 			await self.__remove(str(_id))
 			return True
