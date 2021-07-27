@@ -8,49 +8,129 @@ class Conversation():
 	Complete list of handlers to be used without `Handlers` postfix :-
 		https://docs.pyrogram.org/api/handlers#index
 
-	Usage:
-		listen = Conversation(client)
-		answer = listen.CallbackQuery(filters.user(update.from_user.id))
 
+	Usage:
+		In main.py where `Client` is initialized:
+
+			app = Client('MyBot')
+			Conversation(app) # That's it!
+		
+		Then just use inside any handler `client.listen`:
+
+			@app.on_message()
+			def button_click(client, update):
+				answer = client.listen.CallbackQuery(filters.user(update.from_user.id))
+
+	Method client.listen.Message(or any other types)
+		Parameters:
+			filters: 
+				Single or combined filters like https://docs.pyrogram.org/topics/use-filters.
+				Default is `None` but either filter or id is required.
+			
+			id: 
+				An id for uniquely identify each listen only required if you want to stop() manually.
+				You can pass any of the three types here:
+					-> pyrogram.filters.user
+					-> pyrogram.filters.chat
+					-> str
+				if pyrogram filter's `user` or `chat` is passed as `id` then it gets combined with rest `filters`.
+
+				Default is `None` but either filter or id is required.
+			
+			timeout:
+				In seconds (int) for waiting time of getting a response.
+
+		Returns:
+			`update` (like pyrogram.types.message ...etc) if user reponded within given conditions or
+			`None` if timeout or cancelled using `listen.stop`
 	Example:
 		@app.on_message(filters.command('start'))
 		async def start(client, message):
-			listen = Conversation(client)
 			await client.send_mesage(messsage.chat.id, "What's your name?")
-			reply_message = listen.Message(filters.chat(messsage.chat.id), timeout = None)
-			if reply_message:
-				reply_message.reply(f'hello {reply_message.text}')
+			reply_msg = await client.listen.Message(filters.chat(messsage.chat.id), timeout = None)
+			if reply_msg:
+				reply_msg.reply(f'hello {reply_msg.text}')
+	
+
+	Method client.listen.stop
+		Parameters:
+			id:
+				An id for uniquely identify the listen you want to stop() manually.
+				You can pass any of the three types here:
+					-> pyrogram.filters.user
+					-> pyrogram.filters.chat
+					-> str
+		Returns:
+			`Boolean` True if `id` was present and listen was stopped or False if `id` was invalid.
+		
+		Example:
+			@app.on_message(filters.command('stop'))
+			async def stop(client, message):
+				await client.listen.stop(message.from_user.id)
 	"""
 	def __init__(self, client : pyrogram.Client):
+		client.listen = self
 		self.client = client
 		self.handlers = {}
+		self.hdlr_lock = asyncio.Lock()
 
-	async def __add(self, hdlr, *args, timeout = None):
-		async def dump(_, update): 
-			await self.__remove(id(dump), update)
+	async def __add(self, hdlr, filters = None, id = None, timeout = None):
+		_id = id
+
+		if type(_id) in [pyrogram.filters.InvertFilter, pyrogram.filters.OrFilter, pyrogram.filters.AndFilter]:
+			raise ValueError('Combined filters are not allowed as unique id .')
 		
+		if _id and type(_id) not in [pyrogram.filters.user, pyrogram.filters.chat, str]:
+			raise TypeError('Unique (id) has to be one of pyrogram\'s filters user/chat or a string.')
+		
+		if not (_id or filters):
+			raise ValueError('Atleast either filters or _id as parameter is required.')
+
+		if str(_id) in self.handlers:
+			await self.__remove(str(_id))
+			#raise ValueError('Dupicate id provided.')
+
+		# callback handler
+		async def dump(_, update):
+			await self.__remove(dump._id, update)
+
+		dump._id = str(_id) if _id else hash(dump)
 		group = -0x3e7
-		handler = hdlr(dump, *args)
 		event = asyncio.Event()
+		filters	= (_id & filters) if _id and filters and not isinstance(_id, str) else filters or (filters if isinstance(_id, str) else _id)
+		handler = hdlr(dump, filters)
+		
 		
 		if group not in self.client.dispatcher.groups:
 			self.client.dispatcher.groups[group] = []
 			self.client.dispatcher.groups = OrderedDict(sorted(self.client.dispatcher.groups.items()))
 
-		self.client.dispatcher.groups[group].append(handler)
-		self.handlers[id(dump)] = (handler, group, event)
+		async with self.hdlr_lock:
+			self.client.dispatcher.groups[group].append(handler)
+			self.handlers[dump._id] = (handler, group, event)
+
 		try:
 			await asyncio.wait_for(event.wait(), timeout)
 		except asyncio.exceptions.TimeoutError:
-			await self.__remove(id(dump))
-		
-		return self.handlers.pop(id(dump))
+			await self.__remove(dump._id)
+		finally:
+			result = self.handlers.pop(dump._id, None)
+			self.hdlr_lock.release()
+		return result
 
-	async def __remove(self, cid, update = None):
-		handler, group, event = self.handlers[cid]
+	async def __remove(self, _id, update = None):
+		handler, group, event = self.handlers[_id]
 		self.client.dispatcher.groups[group].remove(handler)
-		self.handlers[cid] = update
+		await self.hdlr_lock.acquire()
+		self.handlers[_id] = update
 		event.set()
+
+	async def stop(self, _id):
+		if str(_id) in self.handlers:
+			await self.__remove(str(_id))
+			return True
+		else:
+			return False
 
 	def __getattr__(self, name):
 		async def wrapper(*args, **kwargs):
