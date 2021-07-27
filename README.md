@@ -26,7 +26,7 @@ async def start(client, message):
 ```
 
 # Advanced Usage
-The conversation class has 2 primary methods `listen.handler` (handler like Message, CallbackQuery ...etc) and `listen.Cancel` for ending an ongoing listener.
+The conversation class has 2 primary methods `listen.Handler` ([Handlers](https://docs.pyrogram.org/api/handlers#index) like **Message, CallbackQuery** ...etc) and `listen.Cancel` for ending an ongoing listener.
 
 ## listen.Handler()
 The conversation `listen.Message` **(or any other [Handler](https://docs.pyrogram.org/api/handlers#index))** takes 3 parameters, default is `None` but either `filter` or `id` as parameter is required.
@@ -38,7 +38,7 @@ If **user/chat filter** is passed then it **combines** itself with `filters` so 
 - **timeout :** Waiting time in seconds [int](https://docs.python.org/3/library/functions.html#int) for getting a response **optional**.
 
 #### Return
-- **Update** :  Based on handlers used could be one of received updates such as [Message](https://docs.pyrogram.org/api/types/Message), [CallbackQuery](Chttps://docs.pyrogram.org/api/types/CallbackQuery), etc.
+- **Update** :  Based on handlers used could be one of received updates such as [Message](https://docs.pyrogram.org/api/types/Message), [CallbackQuery](https://docs.pyrogram.org/api/types/CallbackQuery), etc.
 - **None** : When listen gets cancel using `listen.Cancel` a None is return as response at listen callback.
 - **Exception** : An `asyncio.TimeoutError` is raised if provided waiting time get's over.
 
@@ -61,7 +61,7 @@ async def _(client, query):
 async def _(client, message):
 	button = InlineKeyboardMarkup([[InlineKeyboardButton('Cancel Question', callback_data = 'stop')]])
 	question = await client.send_message(message.chat.id, 'Enter your name in 5s.', reply_markup = button)
-	# A nice flow of convesation
+	# A nice flow of conversation
 	try:
 		response = await client.listen.Message(filters.text, id = filters.user(message.from_user.id), timeout = 5)
 	except asyncio.TimeoutError:
