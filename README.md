@@ -4,9 +4,20 @@ A conversation plugin class for pyrogram using inbuild Update Handlers
 Complete list of handlers to be used without `Handlers` postfix :-
 	https://docs.pyrogram.org/api/handlers#index
 
+# Installation
+
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install or simply copy the class file to your project.
+
+```bash
+pip install https://github.com/Ripeey/Conversation-Pyrogram/archive/refs/heads/main.zip
+```
+
 # Basic Usage
 `main.py` Where the Client is initialized
 ```Python
+from pyrogram import Client
+from convopyro import Conversation
+
 app = Client('MyApp')
 Conversation(app) # That's it!
 ```
