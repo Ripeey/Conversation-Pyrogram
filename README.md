@@ -28,11 +28,15 @@ answer = client.listen.CallbackQuery(filters.user(update.from_user.id))
 
 # Example
 ```Python
+
+from convopyro import listen_message
+
 @app.on_message(filters.command('start'))
 async def start(client, message):
 	await client.send_mesage(messsage.chat.id, "What's your name?")
-	reply_message = client.listen.Message(filters.chat(messsage.chat.id), timeout = None)
-	reply_message.reply(f'hello {reply_message.text}')
+
+	answer = await listen_message(client, messsage.chat.id, timeout=None)
+	await answer.reply(f'hello {answer.text}')
 
 ```
 
