@@ -9,7 +9,7 @@ Complete list of handlers to be used without `Handlers` postfix :-
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install or simply copy the class file to your project.
 
 ```bash
-pip install https://github.com/Ripeey/Conversation-Pyrogram/archive/refs/heads/main.zip
+pip install git+https://github.com/Ripeey/Conversation-Pyrogram
 ```
 
 # Basic Usage
@@ -28,11 +28,15 @@ answer = client.listen.CallbackQuery(filters.user(update.from_user.id))
 
 # Example
 ```Python
+
+from convopyro import listen_message
+
 @app.on_message(filters.command('start'))
 async def start(client, message):
 	await client.send_mesage(messsage.chat.id, "What's your name?")
-	reply_message = client.listen.Message(filters.chat(messsage.chat.id), timeout = None)
-	reply_message.reply(f'hello {reply_message.text}')
+
+	answer = await listen_message(client, messsage.chat.id, timeout=None)
+	await answer.reply(f'hello {answer.text}')
 
 ```
 
