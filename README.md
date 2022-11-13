@@ -29,7 +29,7 @@ answer = client.listen.CallbackQuery(filters.user(update.from_user.id))
 # Example
 ```Python
 
-from convopyro import listen_message
+from convopyro import listen_message,cancel_listen
 
 @app.on_message(filters.command('start'))
 async def start(client, message):
@@ -37,6 +37,11 @@ async def start(client, message):
 
 	answer = await listen_message(client, messsage.chat.id, timeout=None)
 	await answer.reply(f'hello {answer.text}')
+
+@app.on_message(filters.command('cancel_listen'))
+async def start(client, message):
+	answer = await cancel_listen(client, messsage.chat.id)
+	print("Canceled Listen Message")
 
 ```
 
