@@ -39,7 +39,7 @@ async def start(client, message):
 	await answer.reply(f'hello {answer.text}')
 
 @app.on_message(filters.command('cancel_listen'))
-async def start(client, message):
+async def cancel_listen(client, message):
 	answer = await cancel_listen(client, messsage.chat.id)
 	print("Canceled Listen Message")
 
