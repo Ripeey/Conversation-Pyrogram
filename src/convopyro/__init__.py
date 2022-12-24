@@ -134,11 +134,10 @@ class Conversation:
         event.set()
 
     async def Cancel(self, _id):
-        if str(_id) in self.handlers:
-            await self.__remove(str(_id))
-            return True
-        else:
+        if str(_id) not in self.handlers:
             return False
+        await self.__remove(str(_id))
+        return True
 
     def __getattr__(self, name):
         async def wrapper(*args, **kwargs):
