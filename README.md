@@ -9,7 +9,7 @@ Complete list of handlers to be used without `Handlers` postfix :-
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install or simply copy the class file to your project.
 
 ```bash
-pip install git+https://github.com/Ripeey/Conversation-Pyrogram
+pip install -U convopyro
 ```
 
 # Basic Usage
