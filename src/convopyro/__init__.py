@@ -158,5 +158,5 @@ async def listen_message(client:Client, chat_id:Union[int, str, List[Union[int, 
     except TimeoutError:
         return None
 
-async def stop_listen(client:Client, chat_id:Union[int, str, List[Union[int, str]]]) -> bool:
+async def cancel_listen(client:Client, chat_id:Union[int, str, List[Union[int, str]]]) -> bool:
     return await client.listen.Cancel(filters.chat(chat_id))
