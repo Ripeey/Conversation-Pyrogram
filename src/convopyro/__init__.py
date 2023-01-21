@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 from collections import OrderedDict
-from typing import Union
+from typing import Union, List
 import pyrogram, asyncio
+
 
 
 class Conversation:
