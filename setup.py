@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="convopyro",
-    version="0.3",
+    version="0.5",
     author="Ripe",
     author_email="ripeey@protonmail.com",
     description="A conversation plugin class for pyrogram using inbuild Update Handlers",
