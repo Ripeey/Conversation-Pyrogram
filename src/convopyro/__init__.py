@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from collections import OrderedDict
-from typing import Union
+from typing import Union, List
 import pyrogram, asyncio
 
 class Conversation():
@@ -128,12 +128,11 @@ class Conversation():
 		self.handlers[_id] = update
 		event.set()
 
-	async def Cancel(self, _id):
-		if str(_id) in self.handlers:
-			await self.__remove(str(_id))
-			return True
-		else:
+	async def Cancel(self, _id) -> bool:
+		if str(_id) not in self.handlers:
 			return False
+		await self.__remove(str(_id))
+		return True
 
 	def __getattr__(self, name):
 		async def wrapper(*args, **kwargs):
@@ -145,8 +144,11 @@ from pyrogram           import Client, filters
 from pyrogram.types     import Message
 from asyncio.exceptions import TimeoutError
 
-async def listen_message(client:Client, chat_id:int, timeout=None) -> Union[Message, None]:
+async def listen_message(client:Client, chat_id:Union[int, str, List[Union[int, str]]], timeout:Union[int, None]=None) -> Union[Message, None]:
     try:
         return await client.listen.Message(filters.chat(chat_id), timeout=timeout)
     except TimeoutError:
         return None
+
+async def stop_listen(client:Client, chat_id:Union[int, str, List[Union[int, str]]]) -> bool:
+    return await client.listen.Cancel(filters.chat(chat_id))
