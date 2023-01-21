@@ -148,19 +148,15 @@ class Conversation:
         return wrapper
 
 
-from pyrogram import Client, filters
-from pyrogram.types import Message
+from pyrogram           import Client, filters
+from pyrogram.types     import Message
 from asyncio.exceptions import TimeoutError
 
-
-async def listen_message(
-    client: Client, chat_id: int, timeout=None
-) -> Union[Message, None]:
+async def listen_message(client:Client, chat_id:Union[int, str, List[Union[int, str]]], timeout:Union[int, None]=None) -> Union[Message, None]:
     try:
-        return await client.listen.Message(id=filters.chat(chat_id), timeout=timeout)
+        return await client.listen.Message(filters.chat(chat_id), timeout=timeout)
     except TimeoutError:
         return None
 
-
-async def cancel_listen(client: Client, chat_id: int) -> bool:
+async def stop_listen(client:Client, chat_id:Union[int, str, List[Union[int, str]]]) -> bool:
     return await client.listen.Cancel(filters.chat(chat_id))
