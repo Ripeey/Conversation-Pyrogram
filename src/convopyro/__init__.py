@@ -138,7 +138,7 @@ from asyncio.exceptions import TimeoutError
 
 async def listen_message(client:Client, chat_id:Union[int, str, List[Union[int, str]]], timeout:Union[int, None]=None) -> Union[Message, None]:
     try:
-        return await client.listen.Message(filters.chat(chat_id), timeout=timeout)
+        return await client.listen.Message(filters.chat(chat_id), timeout=timeout,id=filters.chat(chat_id))
     except TimeoutError:
         return None
 
